@@ -9,7 +9,6 @@ import org.axonframework.eventhandling.SimpleEventBus
 
 class AxonExtensionSpec extends ScynapseAkkaSpecBase {
   trait Ctx {
-    implicit val system = ActorSystem("scynapse-akka")
     val eventBus = new SimpleEventBus()
     val axonAkkaBridge = AxonEventBusExtension(system) forEventBus eventBus
     def eventMessage[T](payload: T): GenericEventMessage[T] =
