@@ -10,6 +10,9 @@ import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 
 
+/**
+  * The [[akka.actor.ExtensionId]] and [[akka.actor.ExtensionIdProvider]] for Axon extension
+  */
 object AxonEventBusExtension extends ExtensionId[AxonEventBusExtension]
                              with ExtensionIdProvider {
 
@@ -20,8 +23,10 @@ object AxonEventBusExtension extends ExtensionId[AxonEventBusExtension]
 
 }
 
-
-private[scynapse] trait Subscriptions {
+/**
+  * Defines an interface to subscribe Akka actors to Axon event bus
+  */
+private[scynapse] trait AxonAkkaBridge {
   def eventBus: AxonEventBus
 
   def subscribe(ref: ActorRef): Try[_]
@@ -30,9 +35,21 @@ private[scynapse] trait Subscriptions {
 }
 
 
+/**
+  * Axon extension
+  *
+  * @param system The ActorSystem this extension belongs to
+  */
 class AxonEventBusExtension(system: ActorSystem) extends Extension {
 
-  def forEventBus(bus: AxonEventBus) = new Subscriptions {
+  /**
+    * Gets a "bridge" object providing interface to manage actors'
+    * subscriptions.
+    *
+    * @param bus [[org.axonframework.eventhandling.EventBus]]
+    * @return a [[com.thenewmotion.scynapse.akka.AxonAkkaBridge]]
+    */
+  def forEventBus(bus: AxonEventBus) = new AxonAkkaBridge {
     import SubscriptionManager._
     implicit val timeout = Timeout(1 second)
 
